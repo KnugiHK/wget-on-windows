@@ -7,7 +7,9 @@ on:
     paths:
       - 'README.md'
       - '.github/workflows/generate-website.yml'
+      - '.github/workflows/renovate.yml'
       - '.github/generate-website.js'
+      - 'renovate.json'
   workflow_dispatch:
 permissions:
   contents: write
