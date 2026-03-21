@@ -37,7 +37,7 @@ GNUTLS_URL="https://www.gnupg.org/ftp/gcrypt/gnutls/v3.8/gnutls-${GNUTLS_VER}.ta
 CARES_VER="1.34.6"
 CARES_URL="https://github.com/c-ares/c-ares/releases/download/v${CARES_VER}/c-ares-${CARES_VER}.tar.gz"
 
-ICONV_VER="1.18"
+ICONV_VER="1.19"
 ICONV_URL="https://ftp.gnu.org/gnu/libiconv/libiconv-${ICONV_VER}.tar.gz"
 
 PSL_VER="0.21.5"
