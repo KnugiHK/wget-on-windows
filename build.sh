@@ -28,7 +28,7 @@ IDN2_URL="https://ftp.gnu.org/gnu/libidn/libidn2-${IDN2_VER}.tar.gz"
 UNISTRING_VER="1.4.2"
 UNISTRING_URL="https://ftp.gnu.org/gnu/libunistring/libunistring-${UNISTRING_VER}.tar.gz"
 
-ZLIB_VER="1.3.1"
+ZLIB_VER="1.3.2"
 ZLIB_URL="https://github.com/madler/zlib/releases/download/v${ZLIB_VER}/zlib-${ZLIB_VER}.tar.gz"
 
 GNUTLS_VER="3.8.11"
