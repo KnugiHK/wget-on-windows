@@ -49,7 +49,7 @@ PCRE2_URL="https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${PCRE2
 GPG_ERROR_VER="1.58"
 GPG_ERROR_URL="https://www.gnupg.org/ftp/gcrypt/libgpg-error/libgpg-error-${GPG_ERROR_VER}.tar.bz2"
 
-GETTEXT_VER="0.26"
+GETTEXT_VER="1.0"
 GETTEXT_URL="https://ftp.gnu.org/gnu/gettext/gettext-${GETTEXT_VER}.tar.gz"
 
 OPENSSL_VER="3.5.4"
