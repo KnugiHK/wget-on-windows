@@ -53,7 +53,7 @@ jobs:
             datafiles.zip
 
       - name: Archive artifacts
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: wget-x64-binaries
           path: |
@@ -61,7 +61,7 @@ jobs:
             build-wget-x64/install/wget-openssl/wget-openssl-x64.exe
 
       - name: Archive artifacts
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: datafiles
           path: datafiles.zip
@@ -91,7 +91,7 @@ jobs:
             build-wget-x86/install/wget-openssl/wget-openssl-x86.exe
 
       - name: Archive artifacts
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: wget-x86-binaries
           path: |
@@ -122,7 +122,7 @@ jobs:
             build-wget-arm64/install/wget-openssl/wget-openssl-arm64.exe
 
       - name: Archive artifacts
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: wget-arm64-binaries
           path: |
@@ -145,7 +145,7 @@ jobs:
           python-version: '3.x'
 
       - name: Download all artifacts
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           path: ./test-bins
 
@@ -171,7 +171,7 @@ jobs:
           python-version: '3.x'
 
       - name: Download all artifacts
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           path: ./test-bins
 
@@ -193,7 +193,7 @@ jobs:
       - uses: actions/checkout@v6
       
       - name: Download all artifacts
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           path: ./downloads
 
