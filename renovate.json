@@ -146,7 +146,7 @@
       "managerFilePatterns": [
         "/^build.sh$/"
       ],
-      "matchStrings": ["GPG_ERROR_VER\\s*:=\\s*(?<currentValue>.*)\\n"],
+      "matchStrings": ["GPG_ERROR_VER=\"(?<currentValue>.*)\""],
       "depNameTemplate": "gpg/libgpg-error",
       "datasourceTemplate": "github-tags",
       "extractVersionTemplate": "^libgpg-error-(?<version>.+)$"
@@ -157,7 +157,7 @@
       "managerFilePatterns": [
         "/^build.sh$/"
       ],
-      "matchStrings": ["LIBGCRYPT_VER\\s*:=\\s*(?<currentValue>.*)\\n"],
+      "matchStrings": ["LIBGCRYPT_VER=\"(?<currentValue>.*)\""],
       "depNameTemplate": "gpg/libgcrypt",
       "datasourceTemplate": "github-tags",
       "extractVersionTemplate": "^libgcrypt-(?<version>.+)$"
