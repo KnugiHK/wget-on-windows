@@ -46,7 +46,7 @@ PSL_URL="https://github.com/rockdaboot/libpsl/releases/download/${PSL_VER}/libps
 PCRE2_VER="10.47"
 PCRE2_URL="https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${PCRE2_VER}/pcre2-${PCRE2_VER}.tar.gz"
 
-GPG_ERROR_VER="1.58"
+GPG_ERROR_VER="1.59"
 GPG_ERROR_URL="https://www.gnupg.org/ftp/gcrypt/libgpg-error/libgpg-error-${GPG_ERROR_VER}.tar.bz2"
 
 GETTEXT_VER="1.0"
