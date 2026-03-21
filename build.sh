@@ -25,7 +25,7 @@ TASN1_URL="https://ftp.gnu.org/gnu/libtasn1/libtasn1-${TASN1_VER}.tar.gz"
 IDN2_VER="2.3.8"
 IDN2_URL="https://ftp.gnu.org/gnu/libidn/libidn2-${IDN2_VER}.tar.gz"
 
-UNISTRING_VER="1.4.1"
+UNISTRING_VER="1.4.2"
 UNISTRING_URL="https://ftp.gnu.org/gnu/libunistring/libunistring-${UNISTRING_VER}.tar.gz"
 
 ZLIB_VER="1.3.1"
