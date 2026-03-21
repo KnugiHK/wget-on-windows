@@ -45,7 +45,7 @@ jobs:
           zip -r ../../datafiles.zip etc share/locale LICENSE
 
       - name: Attest x64 Binaries
-        uses: actions/attest-build-provenance@v3
+        uses: actions/attest-build-provenance@v4
         with:
           subject-path: |
             build-wget-x64/install/wget-gnutls/wget-gnutls-x64.exe
@@ -84,7 +84,7 @@ jobs:
           ./build.sh x86
 
       - name: Attest x86 Binaries
-        uses: actions/attest-build-provenance@v3
+        uses: actions/attest-build-provenance@v4
         with:
           subject-path: |
             build-wget-x86/install/wget-gnutls/wget-gnutls-x86.exe
@@ -115,7 +115,7 @@ jobs:
           ./build.sh arm64
 
       - name: Attest arm64 Binaries
-        uses: actions/attest-build-provenance@v3
+        uses: actions/attest-build-provenance@v4
         with:
           subject-path: |
             build-wget-arm64/install/wget-gnutls/wget-gnutls-arm64.exe
