@@ -5,79 +5,97 @@
     {
       "customType": "regex",
       "description": "Update GMP",
-      "fileMatch": ["^build.sh$"],
+      "managerFilePatterns": [
+        "/^build.sh$/"
+      ],
       "matchStrings": ["GMP_VER=\"(?<currentValue>[^\"]*)\""],
       "depNameTemplate": "gmp",
-      "lookupNameTemplate": "homebrew/gmp",
+      "packageNameTemplate": "homebrew/gmp",
       "datasourceTemplate": "repology"
     },
     {
       "customType": "regex",
       "description": "Update Nettle",
-      "fileMatch": ["^build.sh$"],
+      "managerFilePatterns": [
+        "/^build.sh$/"
+      ],
       "matchStrings": ["NETTLE_VER=\"(?<currentValue>[^\"]*)\""],
       "depNameTemplate": "nettle",
-      "lookupNameTemplate": "homebrew/nettle",
+      "packageNameTemplate": "homebrew/nettle",
       "datasourceTemplate": "repology"
     },
     {
       "customType": "regex",
       "description": "Update Libtasn1",
-      "fileMatch": ["^build.sh$"],
+      "managerFilePatterns": [
+        "/^build.sh$/"
+      ],
       "matchStrings": ["TASN1_VER=\"(?<currentValue>[^\"]*)\""],
       "depNameTemplate": "libtasn1",
-      "lookupNameTemplate": "homebrew/libtasn1",
+      "packageNameTemplate": "homebrew/libtasn1",
       "datasourceTemplate": "repology"
     },
     {
       "customType": "regex",
       "description": "Update Libidn2",
-      "fileMatch": ["^build.sh$"],
+      "managerFilePatterns": [
+        "/^build.sh$/"
+      ],
       "matchStrings": ["IDN2_VER=\"(?<currentValue>[^\"]*)\""],
       "depNameTemplate": "libidn2",
-      "lookupNameTemplate": "homebrew/libidn2",
+      "packageNameTemplate": "homebrew/libidn2",
       "datasourceTemplate": "repology"
     },
     {
       "customType": "regex",
       "description": "Update Libunistring",
-      "fileMatch": ["^build.sh$"],
+      "managerFilePatterns": [
+        "/^build.sh$/"
+      ],
       "matchStrings": ["UNISTRING_VER=\"(?<currentValue>[^\"]*)\""],
       "depNameTemplate": "libunistring",
-      "lookupNameTemplate": "homebrew/libunistring",
+      "packageNameTemplate": "homebrew/libunistring",
       "datasourceTemplate": "repology"
     },
     {
       "customType": "regex",
       "description": "Update Libiconv",
-      "fileMatch": ["^build.sh$"],
+      "managerFilePatterns": [
+        "/^build.sh$/"
+      ],
       "matchStrings": ["ICONV_VER=\"(?<currentValue>[^\"]*)\""],
       "depNameTemplate": "libiconv",
-      "lookupNameTemplate": "homebrew/libiconv",
+      "packageNameTemplate": "homebrew/libiconv",
       "datasourceTemplate": "repology"
     },
     {
       "customType": "regex",
       "description": "Update Gettext",
-      "fileMatch": ["^build.sh$"],
+      "managerFilePatterns": [
+        "/^build.sh$/"
+      ],
       "matchStrings": ["GETTEXT_VER=\"(?<currentValue>[^\"]*)\""],
       "depNameTemplate": "gettext",
-      "lookupNameTemplate": "homebrew/gettext",
+      "packageNameTemplate": "homebrew/gettext",
       "datasourceTemplate": "repology"
     },
     {
       "customType": "regex",
       "description": "Update Wget",
-      "fileMatch": ["^build.sh$"],
+      "managerFilePatterns": [
+        "/^build.sh$/"
+      ],
       "matchStrings": ["WGET_VER=\"(?<currentValue>[^\"]*)\""],
       "depNameTemplate": "wget",
-      "lookupNameTemplate": "homebrew/wget",
+      "packageNameTemplate": "homebrew/wget",
       "datasourceTemplate": "repology"
     },
     {
       "customType": "regex",
       "description": "Update zlib",
-      "fileMatch": ["^build.sh$"],
+      "managerFilePatterns": [
+        "/^build.sh$/"
+      ],
       "matchStrings": ["ZLIB_VER=\"(?<currentValue>.*)\""],
       "depNameTemplate": "madler/zlib",
       "datasourceTemplate": "github-releases"
@@ -85,7 +103,9 @@
     {
       "customType": "regex",
       "description": "Update c-ares",
-      "fileMatch": ["^build.sh$"],
+      "managerFilePatterns": [
+        "/^build.sh$/"
+      ],
       "matchStrings": ["CARES_VER=\"(?<currentValue>.*)\""],
       "depNameTemplate": "c-ares/c-ares",
       "datasourceTemplate": "github-releases"
@@ -93,7 +113,9 @@
     {
       "customType": "regex",
       "description": "Update libpsl",
-      "fileMatch": ["^build.sh$"],
+      "managerFilePatterns": [
+        "/^build.sh$/"
+      ],
       "matchStrings": ["PSL_VER=\"(?<currentValue>.*)\""],
       "depNameTemplate": "rockdaboot/libpsl",
       "datasourceTemplate": "github-releases"
@@ -101,7 +123,9 @@
     {
       "customType": "regex",
       "description": "Update PCRE2",
-      "fileMatch": ["^build.sh$"],
+      "managerFilePatterns": [
+        "/^build.sh$/"
+      ],
       "matchStrings": ["PCRE2_VER=\"(?<currentValue>.*)\""],
       "depNameTemplate": "PCRE2Project/pcre2",
       "datasourceTemplate": "github-releases"
@@ -109,7 +133,9 @@
     {
       "customType": "regex",
       "description": "Update OpenSSL",
-      "fileMatch": ["^build.sh$"],
+      "managerFilePatterns": [
+        "/^build.sh$/"
+      ],
       "matchStrings": ["OPENSSL_VER=\"(?<currentValue>.*)\""],
       "depNameTemplate": "openssl/openssl",
       "datasourceTemplate": "github-releases"
@@ -117,7 +143,9 @@
     {
       "customType": "regex",
       "description": "Update GPG error",
-      "fileMatch": ["^build.sh$"],
+      "managerFilePatterns": [
+        "/^build.sh$/"
+      ],
       "matchStrings": ["GPG_ERROR_VER\\s*:=\\s*(?<currentValue>.*)\\n"],
       "depNameTemplate": "gpg/libgpg-error",
       "datasourceTemplate": "github-tags",
@@ -126,7 +154,9 @@
     {
       "customType": "regex",
       "description": "Update GPG crypt",
-      "fileMatch": ["^build.sh$"],
+      "managerFilePatterns": [
+        "/^build.sh$/"
+      ],
       "matchStrings": ["LIBGCRYPT_VER\\s*:=\\s*(?<currentValue>.*)\\n"],
       "depNameTemplate": "gpg/libgcrypt",
       "datasourceTemplate": "github-tags",
