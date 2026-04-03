@@ -23,7 +23,7 @@ To learn how to use Wget, please refer to the official GNU Wget manual by clicki
 
 ### Wget features
 
-The Windows version of Wget includes all features of Wget except for NLS (the multi-language version) and Metalink.
+The Windows version of Wget includes all features of Wget except for Metalink.
 
 > [!IMPORTANT]
 > 
