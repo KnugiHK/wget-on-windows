@@ -522,7 +522,7 @@ async function generateSite() {
             <div class="modal-content">
                     <div class="modal-header">
                         <h2 class="modal-title">Download Wget Binary (${version})</h2>
-                        <p class="modal-subtitle">Select your preferred architecture and SSL library</p>
+                        <p class="modal-subtitle">Select your preferred architecture and TLS library</p>
                     </div>
                 <div id="modalBody">
                     <div class="option-group">
@@ -535,7 +535,7 @@ async function generateSite() {
                     </div>
 
                     <div class="option-group">
-                        <label class="option-label">SSL Library</label>
+                        <label class="option-label">TLS Library</label>
                         <div class="option-buttons">
                             <button class="option-btn selected" data-option="ssl" data-value="gnutls">GnuTLS</button>
                             <button class="option-btn" data-option="ssl" data-value="openssl">OpenSSL</button>
