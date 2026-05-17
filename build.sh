@@ -52,7 +52,7 @@ GPG_ERROR_URL="https://www.gnupg.org/ftp/gcrypt/libgpg-error/libgpg-error-${GPG_
 GETTEXT_VER="1.0"
 GETTEXT_URL="https://ftp.gnu.org/gnu/gettext/gettext-${GETTEXT_VER}.tar.gz"
 
-OPENSSL_VER="3.5.4"
+OPENSSL_VER="3.5.6"
 OPENSSL_URL="https://github.com/openssl/openssl/releases/download/openssl-${OPENSSL_VER}/openssl-${OPENSSL_VER}.tar.gz"
 
 WGET_VER="1.25.0"
