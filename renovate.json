@@ -171,6 +171,16 @@
       "matchStrings": ["LLVM_MINGW_VER=\"(?<currentValue>.*)\""],
       "depNameTemplate": "mstorsjo/llvm-mingw",
       "datasourceTemplate": "github-tags"
+    },
+	{
+      "customType": "regex",
+      "description": "Update GnuTLS",
+      "managerFilePatterns": [
+        "/^build.sh$/"
+      ],
+      "matchStrings": ["GNUTLS_VER=\"(?<currentValue>.*)\""],
+      "depNameTemplate": "gnutls/gnutls",
+      "datasourceTemplate": "gitlab-tags"
     }
   ]
 }
