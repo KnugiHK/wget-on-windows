@@ -128,7 +128,8 @@
       ],
       "matchStrings": ["PCRE2_VER=\"(?<currentValue>.*)\""],
       "depNameTemplate": "PCRE2Project/pcre2",
-      "datasourceTemplate": "github-releases"
+      "datasourceTemplate": "github-releases",
+	  "extractVersionTemplate": "pcre2-([0-9.]+)"
     },
     {
       "customType": "regex",
@@ -138,7 +139,8 @@
       ],
       "matchStrings": ["OPENSSL_VER=\"(?<currentValue>.*)\""],
       "depNameTemplate": "openssl/openssl",
-      "datasourceTemplate": "github-releases"
+      "datasourceTemplate": "github-releases",
+	  "extractVersionTemplate": "openssl-([0-9.]+)"
     },
     {
       "customType": "regex",
