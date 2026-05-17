@@ -31,7 +31,7 @@ UNISTRING_URL="https://ftp.gnu.org/gnu/libunistring/libunistring-${UNISTRING_VER
 ZLIB_VER="1.3.2"
 ZLIB_URL="https://github.com/madler/zlib/releases/download/v${ZLIB_VER}/zlib-${ZLIB_VER}.tar.gz"
 
-GNUTLS_VER="3.8.11"
+GNUTLS_VER="3.8.13"
 GNUTLS_URL="https://www.gnupg.org/ftp/gcrypt/gnutls/v3.8/gnutls-${GNUTLS_VER}.tar.xz"
 
 CARES_VER="1.34.6"
