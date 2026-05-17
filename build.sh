@@ -16,7 +16,7 @@
 GMP_VER="6.3.0"
 GMP_URL="https://ftp.gnu.org/gnu/gmp/gmp-${GMP_VER}.tar.xz"
 
-NETTLE_VER="3.10.2"
+NETTLE_VER="4.0"
 NETTLE_URL="https://ftp.gnu.org/gnu/nettle/nettle-${NETTLE_VER}.tar.gz"
 
 TASN1_VER="4.21.0"
