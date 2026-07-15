@@ -34,7 +34,7 @@ ZLIB_URL="https://github.com/madler/zlib/releases/download/v${ZLIB_VER}/zlib-${Z
 GNUTLS_VER="3.8.13"
 GNUTLS_URL="https://www.gnupg.org/ftp/gcrypt/gnutls/v3.8/gnutls-${GNUTLS_VER}.tar.xz"
 
-CARES_VER="1.34.6"
+CARES_VER="1.34.8"
 CARES_URL="https://github.com/c-ares/c-ares/releases/download/v${CARES_VER}/c-ares-${CARES_VER}.tar.gz"
 
 ICONV_VER="1.19"
