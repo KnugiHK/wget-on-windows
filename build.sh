@@ -583,8 +583,8 @@ cd ..
 rm -rf "wget-${WGET_VER}"
 tar -xf "$DOWNLOAD_DIR/wget-${WGET_VER}.tar.gz"
 cd "wget-${WGET_VER}"
-cp ../../windows-openssl.diff .
-patch src/openssl.c < windows-openssl.diff
+cp ../../windows-openssl.patch .
+patch src/openssl.c < windows-openssl.patch
 # Force fcntl to 'no' because MinGW headers lack POSIX constants like F_SETFD,
 # causing Gnulib's replacement wrapper (rpl_fcntl) to fail during compilation.
 env "${NANOSLEEP_OVERRIDES[@]}" \
