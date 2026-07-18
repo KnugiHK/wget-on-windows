@@ -28,7 +28,7 @@ jobs:
     outputs:
       WGET_VERSION: ${{ steps.get_version.outputs.VERSION }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Install prerequisites
         run: |
@@ -73,7 +73,7 @@ jobs:
     name: Build x86
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       
       - name: Install prerequisites
         run: |
@@ -105,7 +105,7 @@ jobs:
     name: Build arm64
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       
       - name: Install prerequisites
         run: |
@@ -139,7 +139,7 @@ jobs:
       WGET_VERSION: ${{ needs.build-x64.outputs.wget_version }}
       PYTHONUTF8: 1
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Set up Python
         uses: actions/setup-python@v6
@@ -165,7 +165,7 @@ jobs:
       WGET_VERSION: ${{ needs.build-x64.outputs.wget_version }}
       PYTHONUTF8: 1
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Set up Python
         uses: actions/setup-python@v6
@@ -192,7 +192,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       
       - name: Download all artifacts
         uses: actions/download-artifact@v8
