@@ -40,7 +40,7 @@ CARES_URL="https://github.com/c-ares/c-ares/releases/download/v${CARES_VER}/c-ar
 ICONV_VER="1.19"
 ICONV_URL="https://ftp.gnu.org/gnu/libiconv/libiconv-${ICONV_VER}.tar.gz"
 
-PSL_VER="0.23.0"
+PSL_VER="0.23.1"
 PSL_URL="https://github.com/rockdaboot/libpsl/releases/download/${PSL_VER}/libpsl-${PSL_VER}.tar.gz"
 
 PCRE2_VER="10.47"
