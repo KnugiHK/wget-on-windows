@@ -40,7 +40,7 @@ CARES_URL="https://github.com/c-ares/c-ares/releases/download/v${CARES_VER}/c-ar
 ICONV_VER="1.19"
 ICONV_URL="https://ftp.gnu.org/gnu/libiconv/libiconv-${ICONV_VER}.tar.gz"
 
-PSL_VER="0.23.0"
+PSL_VER="0.23.3"
 PSL_URL="https://github.com/rockdaboot/libpsl/releases/download/${PSL_VER}/libpsl-${PSL_VER}.tar.gz"
 
 PCRE2_VER="10.47"
@@ -585,8 +585,8 @@ cd ..
 rm -rf "wget-${WGET_VER}"
 tar -xf "$DOWNLOAD_DIR/wget-${WGET_VER}.tar.gz"
 cd "wget-${WGET_VER}"
-cp ../../windows-openssl.diff .
-patch src/openssl.c < windows-openssl.diff
+cp ../../windows-openssl.patch .
+patch src/openssl.c < windows-openssl.patch
 # Force fcntl to 'no' because MinGW headers lack POSIX constants like F_SETFD,
 # causing Gnulib's replacement wrapper (rpl_fcntl) to fail during compilation.
 env "${NANOSLEEP_OVERRIDES[@]}" \
