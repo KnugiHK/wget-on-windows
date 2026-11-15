@@ -58,7 +58,7 @@ OPENSSL_URL="https://github.com/openssl/openssl/releases/download/openssl-${OPEN
 WGET_VER="1.25.0"
 WGET_URL="https://ftp.gnu.org/gnu/wget/wget-${WGET_VER}.tar.gz"
 
-LLVM_MINGW_VER="20251216"
+LLVM_MINGW_VER="20261104"
 LLVM_MINGW_URL="https://github.com/mstorsjo/llvm-mingw/releases/download/${LLVM_MINGW_VER}/llvm-mingw-${LLVM_MINGW_VER}-ucrt-ubuntu-22.04-x86_64.tar.xz"
 
 # -----------------------------------------------------------------------------
@@ -168,7 +168,7 @@ elif [ "$BUILD_ARCH_TYPE" == "arm64" ]; then
   OPENSSL_CROSS=""
   OPENSSL_MAKE_OVERRIDE="RCFLAGS=-D__WIN32 -D__AARCH64"
   
-  WGET_CFLAGS="-D_GNU_SOURCE -Wno-implicit-function-declaration"
+  WGET_CFLAGS="-D_GNU_SOURCE -Wno-implicit-function-declaration -Wno-error=incompatible-pointer-types"
   WGET_OVERRIDE="ac_cv_func_error=no ac_cv_func_strchrnul=no gl_cv_var___daylight=__daylight"
 
   # Disable ASM and hardware acceleration because GnuTLS does not 
