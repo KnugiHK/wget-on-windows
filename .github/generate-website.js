@@ -8,32 +8,6 @@ async function generateSite() {
 
     const latestVersion = process.env.LATEST_TAG.replace(/^v/, "") || 'unknown';
     const readmeContent = fs.readFileSync('README.md', 'utf8');
-    const renderer = new marked.Renderer();
-    const originalBlockquote = renderer.blockquote.bind(renderer);
-
-    renderer.blockquote = function(quote) {
-        const alertMatch = quote.match(/^\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]\s*/i);
-        
-        if (alertMatch) {
-            const alertType = alertMatch[1].toLowerCase();
-            const content = quote.replace(/^\[!.*?\]\s*/i, '');
-            
-            const icons = {
-                note: '📘',
-                tip: '💡',
-                important: '❗',
-                warning: '⚠️',
-                caution: '🚨'
-            };
-            
-            return `<div class="markdown-alert markdown-alert-${alertType}">
-                        <div class="markdown-alert-title">${icons[alertType]} ${alertType.toUpperCase()}</div>
-                        ${content}
-                    </div>`;
-        }
-        
-        return originalBlockquote(quote);
-    };
 
     const generateHTML = (content, version) => `
     <!DOCTYPE html>
@@ -42,7 +16,6 @@ async function generateSite() {
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Windows Binaries of GNU Wget ${version}</title>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/16.3.0/lib/marked.umd.min.js" integrity="sha512-V6rGY7jjOEUc7q5Ews8mMlretz1Vn2wLdMW/qgABLWunzsLfluM0FwHuGjGQ1lc8jO5vGpGIGFE+rTzB+63HdA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
         <style>
             * {
                 margin: 0;
@@ -663,10 +636,10 @@ async function generateSite() {
 
     // Remove the first h1 heading
     const cleanReadme = readmeContent.replace(/^#\s+.+([\r\n]|$)/m, "");
-    const htmlContent = marked.use(markedAlert()).parse(cleanReadme, {
+    marked.use(markedAlert());
+    const htmlContent = marked.parse(cleanReadme, {
       gfm: true,
-      breaks: true,
-      renderer: renderer
+      breaks: true
     });
 
     const finalHTML = generateHTML(htmlContent, latestVersion);
