@@ -69,6 +69,36 @@ BUILD_ARCH_TYPE=$1
 ADDITIONAL_ARG=$2
 ROOT_DIR=$PWD
 
+# Version suffix injected into the reported `wget --version` string:
+#   - tag HEAD points exactly at (with the leading "v" is stripped)
+#   - otherwise the short commit hash (e.g. "1.25.0-c6cfaf3")
+#   - fallback to plain WGET_VER
+COMMIT_TAG=$(git -C "$ROOT_DIR" describe --tags --exact-match HEAD 2>/dev/null | sed 's/^v//' || true)
+COMMIT_HASH=$(git -C "$ROOT_DIR" rev-parse --short HEAD 2>/dev/null || true)
+if [ -n "$COMMIT_TAG" ]; then
+  BUILD_VERSION="$COMMIT_TAG"
+elif [ -n "$COMMIT_HASH" ]; then
+  BUILD_VERSION="${WGET_VER}-${COMMIT_HASH}"
+else
+  BUILD_VERSION="$WGET_VER"
+fi
+
+# Patch the pre-generated `configure` script so `wget --version` reports
+# BUILD_VERSION without re-running autoconf, and restamp pre-built docs so
+# `make install` doesn't require makeinfo. 
+inject_build_version() {
+  sed -i \
+    -e "s/^[[:space:]]*VERSION='${WGET_VER}'/VERSION='${BUILD_VERSION}'/" \
+    -e "s/^[[:space:]]*PACKAGE_VERSION='${WGET_VER}'/PACKAGE_VERSION='${BUILD_VERSION}'/" \
+    -e "s/^[[:space:]]*PACKAGE_STRING='wget ${WGET_VER}'/PACKAGE_STRING='wget ${BUILD_VERSION}'/" \
+    configure
+  sed -i \
+    -e "s/^@set EDITION ${WGET_VER}/@set EDITION ${BUILD_VERSION}/" \
+    -e "s/^@set VERSION ${WGET_VER}/@set VERSION ${BUILD_VERSION}/" \
+    doc/version.texi
+  touch doc/stamp-vti doc/wget.info
+}
+
 if [ -z "$BUILD_ARCH_TYPE" ]; then
   BUILD_ARCH_TYPE="both"
 fi
@@ -543,6 +573,9 @@ tar -xf "$DOWNLOAD_DIR/wget-${WGET_VER}.tar.gz"
 cd "wget-${WGET_VER}"
 cp ../../wget-taskbar-progress.patch .
 patch -p1 < wget-taskbar-progress.patch
+if [ "$BUILD_VERSION" != "$WGET_VER" ]; then
+  inject_build_version
+fi
 # Force fcntl to 'no' because MinGW headers lack POSIX constants like F_SETFD,
 # causing Gnulib's replacement wrapper (rpl_fcntl) to fail during compilation.
 CFLAGS="-I$INSTALL_PATH/include -DGNUTLS_INTERNAL_BUILD=1 -DCARES_STATICLIB=1 -DPCRE2_STATIC=1 -DNDEBUG -O2 -march=$WGET_ARCH -mtune=generic $WGET_CFLAGS" \
@@ -588,6 +621,9 @@ cp ../../wget-taskbar-progress.patch .
 patch -p1 < wget-taskbar-progress.patch
 cp ../../windows-openssl.patch .
 patch src/openssl.c < windows-openssl.patch
+if [ "$BUILD_VERSION" != "$WGET_VER" ]; then
+  inject_build_version
+fi
 # Force fcntl to 'no' because MinGW headers lack POSIX constants like F_SETFD,
 # causing Gnulib's replacement wrapper (rpl_fcntl) to fail during compilation.
 env "${NANOSLEEP_OVERRIDES[@]}" \

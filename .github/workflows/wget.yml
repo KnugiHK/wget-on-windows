@@ -27,6 +27,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-tags: true
 
       - name: Install prerequisites
         run: |
@@ -72,7 +74,9 @@ jobs:
       WGET_VERSION: ${{ steps.get_version.outputs.VERSION }}
     steps:
       - uses: actions/checkout@v7
-      
+        with:
+          fetch-tags: true
+
       - name: Install prerequisites
         run: |
           sudo apt-get update
@@ -109,7 +113,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      
+        with:
+          fetch-tags: true
+
       - name: Install prerequisites
         run: |
           sudo apt-get update
