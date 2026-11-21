@@ -140,7 +140,7 @@
       "matchStrings": ["OPENSSL_VER=\"(?<currentValue>.*)\""],
       "depNameTemplate": "openssl/openssl",
       "datasourceTemplate": "github-releases",
-	  "extractVersionTemplate": "openssl-([0-9.]+)"
+	  "extractVersionTemplate": "openssl-3.5.([0-9]+)"
     },
     {
       "customType": "regex",
