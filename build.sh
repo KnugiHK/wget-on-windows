@@ -43,7 +43,7 @@ ICONV_URL="https://ftp.gnu.org/gnu/libiconv/libiconv-${ICONV_VER}.tar.gz"
 PSL_VER="0.23.3"
 PSL_URL="https://github.com/rockdaboot/libpsl/releases/download/${PSL_VER}/libpsl-${PSL_VER}.tar.gz"
 
-PCRE2_VER="10.47"
+PCRE2_VER="10.49"
 PCRE2_URL="https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${PCRE2_VER}/pcre2-${PCRE2_VER}.tar.gz"
 
 GPG_ERROR_VER="1.61"
