@@ -541,6 +541,8 @@ fetch_src "$WGET_URL"
 rm -rf "wget-${WGET_VER}"
 tar -xf "$DOWNLOAD_DIR/wget-${WGET_VER}.tar.gz"
 cd "wget-${WGET_VER}"
+cp ../../wget-taskbar-progress.patch .
+patch -p1 < wget-taskbar-progress.patch
 # Force fcntl to 'no' because MinGW headers lack POSIX constants like F_SETFD,
 # causing Gnulib's replacement wrapper (rpl_fcntl) to fail during compilation.
 CFLAGS="-I$INSTALL_PATH/include -DGNUTLS_INTERNAL_BUILD=1 -DCARES_STATICLIB=1 -DPCRE2_STATIC=1 -DNDEBUG -O2 -march=$WGET_ARCH -mtune=generic $WGET_CFLAGS" \
@@ -582,6 +584,8 @@ cd ..
 rm -rf "wget-${WGET_VER}"
 tar -xf "$DOWNLOAD_DIR/wget-${WGET_VER}.tar.gz"
 cd "wget-${WGET_VER}"
+cp ../../wget-taskbar-progress.patch .
+patch -p1 < wget-taskbar-progress.patch
 cp ../../windows-openssl.patch .
 patch src/openssl.c < windows-openssl.patch
 # Force fcntl to 'no' because MinGW headers lack POSIX constants like F_SETFD,

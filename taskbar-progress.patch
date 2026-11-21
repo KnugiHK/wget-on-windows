@@ -1,0 +1,400 @@
+diff -ruN a/src/mswindows.c b/src/mswindows.c
+--- a/src/mswindows.c	2024-11-10 22:50:09.000000000 +0800
++++ b/src/mswindows.c	2026-11-22 02:07:14.327990184 +0800
+@@ -361,6 +361,15 @@
+       ws_hangup ("CTRL+Break");
+       return TRUE;
+ #endif
++    case CTRL_C_EVENT:
++    case CTRL_BREAK_EVENT:
++      /* The default handling below terminates the process without
++         running any cleanup.  Clear the taskbar progress now: the
++         console window (with its taskbar button) outlives this
++         process, and nothing else would reset the indicator.  The
++         clear call completes synchronously before we return.  */
++      ws_taskbar_clear ();
++      return FALSE;
+     default:
+       return FALSE;
+     }
+@@ -412,6 +421,335 @@
+   SetConsoleTitle (title_buf);
+ }
+ 
++/* ---------------- Taskbar progress (Windows 7 and later) ----------------
++
++   Reflects download progress on the taskbar button of the console
++   window.  Two mechanisms are used depending on the host:
++
++   - Under Windows Terminal the visible window belongs to
++     WindowsTerminal.exe, while GetConsoleWindow returns a hidden
++     pseudoconsole window on which ITaskbarList3 has no effect.  There
++     we emit the ConEmu-style OSC 9;4 escape sequence (supported by
++     Windows Terminal 1.22 and later), which makes the terminal set
++     progress on its own tab and taskbar button.  Detection is via the
++     WT_SESSION environment variable.
++
++   - Otherwise (classic conhost console) ITaskbarList3 is used.  The
++     shell accepts progress updates for windows owned by another
++     process (the console window belongs to conhost), so wget needs no
++     window of its own.
++
++   The COM interface is resolved dynamically: the ole32 entry points
++   are fetched with LoadLibrary and the interface vtable is declared
++   locally.  This way building with any MinGW toolchain requires
++   neither <shobjidl.h> nor additional import libraries.  If any step
++   fails (no console window, Windows older than 7, COM already running
++   in an incompatible apartment, etc.)  taskbar progress is silently
++   disabled and wget behaves exactly as it does on other platforms.  */
++
++/* {56FDF344-FD6D-11d0-958A-006097C9A090} CLSID_TaskbarList */
++static const GUID ws_CLSID_TaskbarList =
++  { 0x56FDF344, 0xFD6D, 0x11D0,
++    { 0x95, 0x8A, 0x00, 0x60, 0x97, 0xC9, 0xA0, 0x90 } };
++/* {EA1AFB91-9E28-4B86-90E9-9E9F8A5EEFAF} IID_ITaskbarList3 */
++static const GUID ws_IID_ITaskbarList3 =
++  { 0xEA1AFB91, 0x9E28, 0x4B86,
++    { 0x90, 0xE9, 0x9E, 0x9F, 0x8A, 0x5E, 0xEF, 0xAF } };
++
++#ifndef COINIT_APARTMENTTHREADED
++# define COINIT_APARTMENTTHREADED 0x2
++#endif
++#ifndef CLSCTX_INPROC_SERVER
++# define CLSCTX_INPROC_SERVER 0x1
++#endif
++#define ws_TBPF_NOPROGRESS  0
++#define ws_TBPF_NORMAL      2
++#define ws_TBPF_ERROR       4
++
++/* Minimal declaration of ITaskbarList3 (inherits ITaskbarList2 and
++   ITaskbarList) for the C vtable layout.  Note the order: the real
++   interface declares SetProgressValue before SetProgressState.  */
++typedef struct ws_ITaskbarList3Vtbl {
++  HRESULT (WINAPI *QueryInterface) (void *, const GUID *, void **);
++  ULONG (WINAPI *AddRef) (void *);
++  ULONG (WINAPI *Release) (void *);
++  HRESULT (WINAPI *HrInit) (void *);
++  HRESULT (WINAPI *AddTab) (void *, HWND);
++  HRESULT (WINAPI *DeleteTab) (void *, HWND);
++  HRESULT (WINAPI *ActivateTab) (void *, HWND);
++  HRESULT (WINAPI *SetActiveAlt) (void *, HWND);
++  HRESULT (WINAPI *MarkFullscreenWindow) (void *, HWND, BOOL);
++  HRESULT (WINAPI *SetProgressValue) (void *, HWND, ULONGLONG, ULONGLONG);
++  HRESULT (WINAPI *SetProgressState) (void *, HWND, DWORD);
++} ws_ITaskbarList3Vtbl;
++
++#ifndef FAILED
++# define FAILED(hr) (((HRESULT) (hr)) < 0)
++#endif
++
++static HMODULE ws_ole32_lib;
++static void *ws_taskbar;          /* ITaskbarList3 * */
++static bool ws_taskbar_failed;    /* init failed; don't retry */
++static HWND ws_taskbar_hwnd;      /* console window we drive */
++static int ws_taskbar_last_pct = -1;
++static int ws_taskbar_state = -1;   /* last state sent, TBPF_*, -1 unknown */
++static DWORD ws_taskbar_last_tick;  /* last SetProgressValue time, ms */
++
++/* One-time setup of the ITaskbarList3 instance.  */
++
++static bool
++ws_taskbar_init (void)
++{
++  typedef HRESULT (WINAPI *CoInitializeEx_t) (LPVOID, DWORD);
++  typedef HRESULT (WINAPI *CoCreateInstance_t) (const GUID *, LPVOID, DWORD,
++                                                const GUID *, void **);
++  CoInitializeEx_t pCoInitializeEx;
++  CoCreateInstance_t pCoCreateInstance;
++  ws_ITaskbarList3Vtbl *vtbl;
++  HRESULT hr;
++
++  if (ws_taskbar)
++    return true;
++  if (ws_taskbar_failed)
++    return false;
++  ws_taskbar_failed = 1;
++
++  ws_ole32_lib = LoadLibraryA ("ole32.dll");
++  if (!ws_ole32_lib)
++    return false;
++
++  pCoInitializeEx = (CoInitializeEx_t) GetProcAddress (ws_ole32_lib,
++                                                       "CoInitializeEx");
++  pCoCreateInstance = (CoCreateInstance_t) GetProcAddress (ws_ole32_lib,
++                                                           "CoCreateInstance");
++  if (!pCoInitializeEx || !pCoCreateInstance)
++    return false;
++
++  /* wget is single threaded; STA is what COM documents for UI anyway.
++     Ignore the return value: RPC_E_CHANGED_MODE only means COM has
++     already been initialized in MTA mode by a library, which is
++     still good enough for CoCreateInstance.  */
++  pCoInitializeEx (NULL, COINIT_APARTMENTTHREADED);
++
++  hr = pCoCreateInstance (&ws_CLSID_TaskbarList, NULL, CLSCTX_INPROC_SERVER,
++                          &ws_IID_ITaskbarList3, &ws_taskbar);
++  if (FAILED (hr) || !ws_taskbar)
++    {
++      ws_taskbar = NULL;
++      return false;
++    }
++
++  vtbl = *(ws_ITaskbarList3Vtbl **) ws_taskbar;
++  hr = vtbl->HrInit (ws_taskbar);
++  if (FAILED (hr))
++    {
++      vtbl->Release (ws_taskbar);
++      ws_taskbar = NULL;
++      return false;
++    }
++
++  return true;
++}
++
++/* Whether we are running under Windows Terminal, which supports the
++   OSC 9;4 taskbar progress sequence instead of ITaskbarList3.  */
++
++static bool
++ws_taskbar_wt_session (void)
++{
++  static bool wt_session;
++  static bool checked;
++
++  if (!checked)
++    {
++      checked = 1;
++      wt_session = getenv ("WT_SESSION") != NULL;
++    }
++  return wt_session;
++}
++
++/* Write an escape sequence straight to the console screen buffer so
++   that it reaches the terminal host even when stdout is redirected to
++   a file or pipe.  */
++
++static void
++ws_taskbar_wt_write (const char *seq)
++{
++  static HANDLE conout;
++  DWORD written;
++
++  if (!conout)
++    {
++      conout = CreateFileA ("CONOUT$", GENERIC_WRITE,
++                            FILE_SHARE_READ | FILE_SHARE_WRITE,
++                            NULL, OPEN_EXISTING, 0, NULL);
++      if (conout == INVALID_HANDLE_VALUE)
++        conout = NULL;
++    }
++  if (conout)
++    WriteFile (conout, seq, (DWORD) strlen (seq), &written, NULL);
++}
++
++/* Set taskbar progress through the OSC 9;4 sequence:
++
++     ESC ] 9 ; 4 ; state ; progress BEL
++
++   with state 1 = normal progress, 2 = error and 0 = remove.  */
++
++static void
++ws_taskbar_wt_progress (int percentage)
++{
++  char seq[32];
++
++  sprintf (seq, "\x1b]9;4;1;%d\x7", percentage);
++  ws_taskbar_wt_write (seq);
++}
++
++static void
++ws_taskbar_wt_error (void)
++{
++  char seq[32];
++
++  sprintf (seq, "\x1b]9;4;2;%d\x7",
++           ws_taskbar_last_pct < 0 ? 0 : ws_taskbar_last_pct);
++  ws_taskbar_wt_write (seq);
++}
++
++static void
++ws_taskbar_wt_clear (void)
++{
++  ws_taskbar_wt_write ("\x1b]9;4;0;0\x7");
++}
++
++/* Track the console window; reinitialize the progress display if the
++   console has been recreated (e.g. under Windows Terminal).  */
++
++static HWND
++ws_taskbar_window (void)
++{
++  HWND hwnd = GetConsoleWindow ();
++
++  if (hwnd && hwnd != ws_taskbar_hwnd)
++    {
++      ws_taskbar_hwnd = hwnd;
++      ws_taskbar_last_pct = -1;
++    }
++  return ws_taskbar_hwnd;
++}
++
++/* Reflect download progress (PERCENTAGE_FLOAT in the [0, 100] range)
++   on the taskbar button of the console window.  */
++
++void
++ws_taskbar_progress (double percentage_float)
++{
++  ws_ITaskbarList3Vtbl *vtbl;
++  HWND hwnd;
++  DWORD now;
++  int percentage;
++
++  /* Clamp percentage value.  */
++  percentage = (int) percentage_float;
++  if (percentage < 0)
++    percentage = 0;
++  if (percentage > 100)
++    percentage = 100;
++
++  /* Only update the taskbar when the percentage has changed.  */
++  if (percentage == ws_taskbar_last_pct)
++    return;
++
++  /* Rate-limit the value updates: a fast download would otherwise
++     hammer the shell dozens of times per second.  */
++  now = GetTickCount ();
++  if (ws_taskbar_last_tick && now - ws_taskbar_last_tick < 200)
++    return;
++
++  ws_taskbar_last_pct = percentage;
++  ws_taskbar_last_tick = now;
++
++  if (ws_taskbar_wt_session ())
++    {
++      ws_taskbar_wt_progress (percentage);
++      return;
++    }
++
++  if (!ws_taskbar_init ())
++    return;
++  hwnd = ws_taskbar_window ();
++  if (!hwnd)
++    return;
++
++  vtbl = *(ws_ITaskbarList3Vtbl **) ws_taskbar;
++  /* TBPF_ERROR is a blocking state that SetProgressValue does not
++     clear, so restore the normal state explicitly before resuming.  */
++  if (ws_taskbar_state == ws_TBPF_ERROR)
++    vtbl->SetProgressState (ws_taskbar, hwnd, ws_TBPF_NORMAL);
++  ws_taskbar_state = ws_TBPF_NORMAL;
++  vtbl->SetProgressValue (ws_taskbar, hwnd,
++                          (ULONGLONG) percentage, (ULONGLONG) 100);
++}
++
++/* Mark the current download as failed on the taskbar (red state).  */
++
++void
++ws_taskbar_error (void)
++{
++  ws_ITaskbarList3Vtbl *vtbl;
++  HWND hwnd;
++
++  if (ws_taskbar_wt_session ())
++    {
++      ws_taskbar_wt_error ();
++      return;
++    }
++
++  if (!ws_taskbar_init ())
++    return;
++  hwnd = ws_taskbar_window ();
++  if (!hwnd)
++    return;
++
++  /* Don't repeat a blocking state: Explorer animates every state
++     change, so redundant calls cause visible flicker.  */
++  if (ws_taskbar_state == ws_TBPF_ERROR)
++    return;
++  ws_taskbar_state = ws_TBPF_ERROR;
++
++  vtbl = *(ws_ITaskbarList3Vtbl **) ws_taskbar;
++  vtbl->SetProgressState (ws_taskbar, hwnd, ws_TBPF_ERROR);
++}
++
++/* Remove taskbar progress after the current download has finished;
++   the state also resets automatically when the next download starts
++   reporting progress.  */
++
++void
++ws_taskbar_clear (void)
++{
++  ws_ITaskbarList3Vtbl *vtbl;
++  HWND hwnd;
++
++  if (ws_taskbar_wt_session ())
++    {
++      ws_taskbar_wt_clear ();
++      return;
++    }
++
++  if (!ws_taskbar_init ())
++    return;
++  hwnd = ws_taskbar_window ();
++  if (!hwnd)
++    return;
++
++  if (ws_taskbar_state == ws_TBPF_NOPROGRESS)
++    return;
++  ws_taskbar_state = ws_TBPF_NOPROGRESS;
++
++  vtbl = *(ws_ITaskbarList3Vtbl **) ws_taskbar;
++  vtbl->SetProgressState (ws_taskbar, hwnd, ws_TBPF_NOPROGRESS);
++}
++
+ /* Returns a pointer to the fully qualified name of the directory that
+    contains the Wget binary (wget.exe).  The returned path does not have a
+    trailing path separator.  Returns NULL on failure.  */
+diff -ruN a/src/mswindows.h b/src/mswindows.h
+--- a/src/mswindows.h	2024-11-10 22:50:09.000000000 +0800
++++ b/src/mswindows.h	2026-11-22 01:11:56.124582015 +0800
+@@ -71,6 +71,9 @@
+ void ws_startup (void);
+ void ws_changetitle (const char *);
+ void ws_percenttitle (double);
++void ws_taskbar_progress (double);
++void ws_taskbar_error (void);
++void ws_taskbar_clear (void);
+ char *ws_mypath (void);
+ void windows_main (char **);
+ void set_windows_fd_as_blocking_socket (int);
+diff -ruN a/src/retr.c b/src/retr.c
+--- a/src/retr.c	2024-11-11 05:26:57.000000000 +0800
++++ b/src/retr.c	2026-11-22 01:12:15.732563962 +0800
+@@ -545,6 +545,11 @@
+       if (toread > 0 && opt.show_progress)
+         ws_percenttitle (100.0 *
+                          (startpos + sum_read) / (startpos + toread));
++      /* Reflect the progress on the taskbar regardless of whether the
++         console shows a progress bar.  */
++      if (toread > 0)
++        ws_taskbar_progress (100.0 *
++                             (startpos + sum_read) / (startpos + toread));
+ #endif
+     }
+   if (ret < -1)
+@@ -554,6 +559,16 @@
+   if (progress)
+     progress_finish (progress, ptimer_read (timer));
+ 
++#ifdef WINDOWS
++  /* Terminal state for the taskbar: red on failure, no progress on
++     success.  Both are cleared when the next download reports
++     progress.  */
++  if (ret < 0)
++    ws_taskbar_error ();
++  else
++    ws_taskbar_clear ();
++#endif
++
+   if (timer)
+     {
+       if (elapsed)
