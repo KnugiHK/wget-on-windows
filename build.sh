@@ -31,7 +31,7 @@ UNISTRING_URL="https://ftp.gnu.org/gnu/libunistring/libunistring-${UNISTRING_VER
 ZLIB_VER="1.4"
 ZLIB_URL="https://github.com/madler/zlib/releases/download/v${ZLIB_VER}/zlib-${ZLIB_VER}.tar.gz"
 
-GNUTLS_VER="3.8.13"
+GNUTLS_VER="3.8.14"
 GNUTLS_URL="https://www.gnupg.org/ftp/gcrypt/gnutls/v3.8/gnutls-${GNUTLS_VER}.tar.xz"
 
 CARES_VER="1.34.9"
@@ -171,13 +171,12 @@ elif [ "$BUILD_ARCH_TYPE" == "arm64" ]; then
   WGET_CFLAGS="-D_GNU_SOURCE -Wno-implicit-function-declaration -Wno-error=incompatible-pointer-types"
   WGET_OVERRIDE="ac_cv_func_error=no ac_cv_func_strchrnul=no gl_cv_var___daylight=__daylight"
 
-  # Disable ASM and hardware acceleration because GnuTLS does not 
-  # provide AArch64 assembly in the MinGW COFF format (unlike x86_64).
-  GNUTLS_FLAGS="--disable-hardware-acceleration "
-  # Fix for ARM64 static hang: Disable threads to prevent a deadlock between 
-  # GnuTLS global constructors and winpthreads during early CRT initialization.
-  GNUTLS_FLAGS+="--disable-threads gl_cv_func_pthread_mutex_timedlock_in_LIBMULTITHREAD=yes"
-  
+  # Disable hardware acceleration: GnuTLS lacks AArch64 assembly in MinGW COFF format (unlike x86_64).
+  # Use native Windows threads: avoids the ARM64 static-init deadlock with winpthreads
+  # without hitting --disable-threads build issues in GnuTLS 3.8.14+.
+  GNUTLS_FLAGS="--disable-hardware-acceleration --enable-threads=windows "
+  GNUTLS_MAKE_CPPFLAGS="-include errno.h"
+
   EXE_SUFFIX="-arm64.exe"
 elif [ "$BUILD_ARCH_TYPE" == "disable-binfmt" ]; then
   if [ "$(id -u)" -ne 0 ]; then
@@ -385,7 +384,7 @@ if [ ! -f "$INSTALL_PATH"/lib/libgnutls.a ]; then
   --enable-static \
   --without-zstd \
   || abort "[gnutls] configure failed"
-  make -j $CORE || abort "[gnutls] make failed"
+  make -j $CORE CPPFLAGS="$GNUTLS_MAKE_CPPFLAGS" || abort "[gnutls] make failed"
   make install || abort "[gnutls] make install"
   cd ..
 fi
