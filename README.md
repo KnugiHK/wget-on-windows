@@ -46,11 +46,18 @@ To build Wget for Windows on WSL 1 or 2 (Debian/Ubuntu), please follow these ste
 ```bash
 sudo apt-get install -y mingw-w64 mingw-w64-tools mingw-w64-i686-dev gcc make m4 pkg-config automake gettext
 git clone https://github.com/KnugiHK/wget-on-windows && cd wget-on-windows
-./build.sh # Builds both x86 and x64 (no arm64 by default)
-./build.sh x64 # Builds x64 only
-./build.sh x86 # Builds x86 only
+./build.sh       # Builds both x86 and x64 (no arm64 by default)
+./build.sh x64   # Builds x64 only
+./build.sh x86   # Builds x86 only
 ./build.sh arm64 # Builds arm64 only
 ```
+
+#### Build Script Options
+
+You can pass the following optional flags to `./build.sh` (alone or alongside a target architecture):
+
+* `--no-version-suffix`: Reports the plain upstream version (e.g., `1.25.0`) in `wget --version` instead of appending the git tag or commit hash suffix.
+* `--no-taskbar-progress`: Skips applying the Windows taskbar progress indicator patch (`taskbar-progress.patch`).
 
 > [!TIP]
 > If you are seeing constant Windows popups while building for ARM64 on WSL, it's because Windows doesn't recognize the conftests files the build script is running.
@@ -74,6 +81,7 @@ gci "wget*.exe" | % { gh attestation verify $_.FullName -R KnugiHK/wget-on-windo
 ```bash
 for file in wget*.exe; do ; gh attestation verify "$file" -R KnugiHK/wget-on-windows; done
 ```
+
 ## Legacy & Credits
 
 This project is the active continuation of the wget-windows port, originally founded by @webfolderio. As a former contributor to the original repository, I stepped in to keep the project alive for the Windows community after the original source became unavailable.
