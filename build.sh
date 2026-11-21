@@ -71,7 +71,6 @@ LLVM_MINGW_URL="https://github.com/mstorsjo/llvm-mingw/releases/download/${LLVM_
 # -----------------------------------------------------------------------------
 
 BUILD_ARCH_TYPE=""
-ADDITIONAL_ARG=""
 NO_VERSION_SUFFIX=0
 NO_TASKBAR_PROGRESS=0
 
@@ -82,8 +81,6 @@ for arg in "$@"; do
     *)
       if [ -z "$BUILD_ARCH_TYPE" ]; then
         BUILD_ARCH_TYPE="$arg"
-      elif [ -z "$ADDITIONAL_ARG" ]; then
-        ADDITIONAL_ARG="$arg"
       else
         echo "Unknown argument: $arg"
         exit 1
@@ -133,7 +130,6 @@ if [ "$BUILD_ARCH_TYPE" == "both" ]; then
   forward_args=()
   [ "$NO_VERSION_SUFFIX" -eq 1 ] && forward_args+=(--no-version-suffix)
   [ "$NO_TASKBAR_PROGRESS" -eq 1 ] && forward_args+=(--no-taskbar-progress)
-  [ -n "$ADDITIONAL_ARG" ] && forward_args+=("$ADDITIONAL_ARG")
   echo "================================================================="
   echo "ENACTING DUAL-ARCHITECHTURE BUILD"
   echo "================================================================="
@@ -252,9 +248,9 @@ else
 fi
 
 if [[ "$BUILD_ARCH_TYPE" == "x86" ]] || [[ "$BUILD_ARCH_TYPE" == "x64" ]]; then
-  # If building for MinGW-w64 13 or later, apply specific flags
-  # These are mostly hacks and should be removed once upstream fixes the issues
-  if [ "$ADDITIONAL_ARG" == "mingw13" ]; then
+  # Work around GCC 14+ C errors in Wget and override the error() check.
+  # Revisit when updating bundled sources or the toolchain.
+  if [ "$("$WGET_GCC" -dumpversion | sed 's/[^0-9].*//')" -ge 14 ]; then
     WGET_CFLAGS="-D_GNU_SOURCE -Wno-implicit-function-declaration -Wno-error=int-conversion -Wno-incompatible-pointer-types"
     WGET_OVERRIDE="ac_cv_func_error=no"
     GMP_CFLAGS="-std=gnu11"
