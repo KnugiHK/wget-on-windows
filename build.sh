@@ -19,19 +19,19 @@
 # Version & URL Definitions (Centralized Management)
 # -----------------------------------------------------------------------------
 GMP_VER="6.3.0"
-GMP_URL="https://ftp.gnu.org/gnu/gmp/gmp-${GMP_VER}.tar.xz"
+GMP_URL="https://mirrors.edge.kernel.org/gnu/gmp/gmp-${GMP_VER}.tar.xz"
 
 NETTLE_VER="3.10.2"
-NETTLE_URL="https://ftp.gnu.org/gnu/nettle/nettle-${NETTLE_VER}.tar.gz"
+NETTLE_URL="https://mirrors.edge.kernel.org/gnu/nettle/nettle-${NETTLE_VER}.tar.gz"
 
 TASN1_VER="4.21.0"
-TASN1_URL="https://ftp.gnu.org/gnu/libtasn1/libtasn1-${TASN1_VER}.tar.gz"
+TASN1_URL="https://mirrors.edge.kernel.org/gnu/libtasn1/libtasn1-${TASN1_VER}.tar.gz"
 
 IDN2_VER="2.3.8"
-IDN2_URL="https://ftp.gnu.org/gnu/libidn/libidn2-${IDN2_VER}.tar.gz"
+IDN2_URL="https://mirrors.edge.kernel.org/gnu/libidn/libidn2-${IDN2_VER}.tar.gz"
 
 UNISTRING_VER="1.5"
-UNISTRING_URL="https://ftp.gnu.org/gnu/libunistring/libunistring-${UNISTRING_VER}.tar.gz"
+UNISTRING_URL="https://mirrors.edge.kernel.org/gnu/libunistring/libunistring-${UNISTRING_VER}.tar.gz"
 
 ZLIB_VER="1.4"
 ZLIB_URL="https://github.com/madler/zlib/releases/download/v${ZLIB_VER}/zlib-${ZLIB_VER}.tar.gz"
@@ -43,7 +43,7 @@ CARES_VER="1.34.9"
 CARES_URL="https://github.com/c-ares/c-ares/releases/download/v${CARES_VER}/c-ares-${CARES_VER}.tar.gz"
 
 ICONV_VER="1.19"
-ICONV_URL="https://ftp.gnu.org/gnu/libiconv/libiconv-${ICONV_VER}.tar.gz"
+ICONV_URL="https://mirrors.edge.kernel.org/gnu/libiconv/libiconv-${ICONV_VER}.tar.gz"
 
 PSL_VER="0.23.3"
 PSL_URL="https://github.com/rockdaboot/libpsl/releases/download/${PSL_VER}/libpsl-${PSL_VER}.tar.gz"
@@ -55,13 +55,13 @@ GPG_ERROR_VER="1.61"
 GPG_ERROR_URL="https://www.gnupg.org/ftp/gcrypt/libgpg-error/libgpg-error-${GPG_ERROR_VER}.tar.bz2"
 
 GETTEXT_VER="1.0"
-GETTEXT_URL="https://ftp.gnu.org/gnu/gettext/gettext-${GETTEXT_VER}.tar.gz"
+GETTEXT_URL="https://mirrors.edge.kernel.org/gnu/gettext/gettext-${GETTEXT_VER}.tar.gz"
 
 OPENSSL_VER="3.5.9"
 OPENSSL_URL="https://github.com/openssl/openssl/releases/download/openssl-${OPENSSL_VER}/openssl-${OPENSSL_VER}.tar.gz"
 
 WGET_VER="1.25.0"
-WGET_URL="https://ftp.gnu.org/gnu/wget/wget-${WGET_VER}.tar.gz"
+WGET_URL="https://mirrors.edge.kernel.org/gnu/wget/wget-${WGET_VER}.tar.gz"
 
 LLVM_MINGW_VER="20261117"
 LLVM_MINGW_URL="https://github.com/mstorsjo/llvm-mingw/releases/download/${LLVM_MINGW_VER}/llvm-mingw-${LLVM_MINGW_VER}-ucrt-ubuntu-22.04-x86_64.tar.xz"
