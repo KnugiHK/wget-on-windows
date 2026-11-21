@@ -9,6 +9,11 @@
 #   ./build.sh x86   (Builds x86 only)
 #   ./build.sh x64   (Builds x64 only)
 #   ./build.sh arm64 (Builds ARM64 only)
+#
+# Options:
+#   --no-version-suffix    Report plain upstream version (e.g. "1.25.0") in
+#                          `wget --version` instead of the tag/commit suffix
+#   --no-taskbar-progress  Skip applying the taskbar progress patch
 
 # -----------------------------------------------------------------------------
 # Version & URL Definitions (Centralized Management)
@@ -65,8 +70,27 @@ LLVM_MINGW_URL="https://github.com/mstorsjo/llvm-mingw/releases/download/${LLVM_
 # Entry Point
 # -----------------------------------------------------------------------------
 
-BUILD_ARCH_TYPE=$1
-ADDITIONAL_ARG=$2
+BUILD_ARCH_TYPE=""
+ADDITIONAL_ARG=""
+NO_VERSION_SUFFIX=0
+NO_TASKBAR_PROGRESS=0
+
+for arg in "$@"; do
+  case "$arg" in
+    --no-version-suffix)   NO_VERSION_SUFFIX=1 ;;
+    --no-taskbar-progress) NO_TASKBAR_PROGRESS=1 ;;
+    *)
+      if [ -z "$BUILD_ARCH_TYPE" ]; then
+        BUILD_ARCH_TYPE="$arg"
+      elif [ -z "$ADDITIONAL_ARG" ]; then
+        ADDITIONAL_ARG="$arg"
+      else
+        echo "Unknown argument: $arg"
+        exit 1
+      fi
+      ;;
+  esac
+done
 ROOT_DIR=$PWD
 
 # Version suffix injected into the reported `wget --version` string:
@@ -75,7 +99,9 @@ ROOT_DIR=$PWD
 #   - fallback to plain WGET_VER
 COMMIT_TAG=$(git -C "$ROOT_DIR" describe --tags --exact-match HEAD 2>/dev/null | sed 's/^v//' || true)
 COMMIT_HASH=$(git -C "$ROOT_DIR" rev-parse --short HEAD 2>/dev/null || true)
-if [ -n "$COMMIT_TAG" ]; then
+if [ "$NO_VERSION_SUFFIX" -eq 1 ]; then
+  BUILD_VERSION="$WGET_VER"
+elif [ -n "$COMMIT_TAG" ]; then
   BUILD_VERSION="$COMMIT_TAG"
 elif [ -n "$COMMIT_HASH" ]; then
   BUILD_VERSION="${WGET_VER}-${COMMIT_HASH}"
@@ -104,11 +130,15 @@ if [ -z "$BUILD_ARCH_TYPE" ]; then
 fi
 
 if [ "$BUILD_ARCH_TYPE" == "both" ]; then
+  forward_args=()
+  [ "$NO_VERSION_SUFFIX" -eq 1 ] && forward_args+=(--no-version-suffix)
+  [ "$NO_TASKBAR_PROGRESS" -eq 1 ] && forward_args+=(--no-taskbar-progress)
+  [ -n "$ADDITIONAL_ARG" ] && forward_args+=("$ADDITIONAL_ARG")
   echo "================================================================="
   echo "ENACTING DUAL-ARCHITECHTURE BUILD"
   echo "================================================================="
-  /bin/bash "$0" x64 || exit 1
-  /bin/bash "$0" x86 || exit 1
+  /bin/bash "$0" x64 "${forward_args[@]}" || exit 1
+  /bin/bash "$0" x86 "${forward_args[@]}" || exit 1
   exit 0
 fi
 
@@ -571,8 +601,10 @@ fetch_src "$WGET_URL"
 rm -rf "wget-${WGET_VER}"
 tar -xf "$DOWNLOAD_DIR/wget-${WGET_VER}.tar.gz"
 cd "wget-${WGET_VER}"
-cp ../../wget-taskbar-progress.patch .
-patch -p1 < wget-taskbar-progress.patch
+if [ "$NO_TASKBAR_PROGRESS" -eq 0 ]; then
+  cp ../../wget-taskbar-progress.patch .
+  patch -p1 < wget-taskbar-progress.patch
+fi
 if [ "$BUILD_VERSION" != "$WGET_VER" ]; then
   inject_build_version
 fi
@@ -617,8 +649,10 @@ cd ..
 rm -rf "wget-${WGET_VER}"
 tar -xf "$DOWNLOAD_DIR/wget-${WGET_VER}.tar.gz"
 cd "wget-${WGET_VER}"
-cp ../../wget-taskbar-progress.patch .
-patch -p1 < wget-taskbar-progress.patch
+if [ "$NO_TASKBAR_PROGRESS" -eq 0 ]; then
+  cp ../../wget-taskbar-progress.patch .
+  patch -p1 < wget-taskbar-progress.patch
+fi
 cp ../../windows-openssl.patch .
 patch src/openssl.c < windows-openssl.patch
 if [ "$BUILD_VERSION" != "$WGET_VER" ]; then
