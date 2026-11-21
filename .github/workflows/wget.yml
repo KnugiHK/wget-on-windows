@@ -25,8 +25,6 @@ jobs:
   build-x64:
     name: Build x64
     runs-on: ubuntu-latest
-    outputs:
-      WGET_VERSION: ${{ steps.get_version.outputs.VERSION }}
     steps:
       - uses: actions/checkout@v7
 
@@ -39,9 +37,6 @@ jobs:
         run: |
           x86_64-w64-mingw32-gcc --version
           ./build.sh x64
-          VERSION=$(grep -Po '(?<=wget-)\d+\.\d{2}\.\d+' build.sh | uniq)
-          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
-          echo "Extracted: $VERSION"
           cp LICENSE build-wget-x64/install/
           cd build-wget-x64/install
           zip -r ../../datafiles.zip etc share/locale LICENSE
@@ -73,6 +68,8 @@ jobs:
   build-x86:
     name: Build x86
     runs-on: ubuntu-latest
+    outputs:
+      WGET_VERSION: ${{ steps.get_version.outputs.VERSION }}
     steps:
       - uses: actions/checkout@v7
       
@@ -82,9 +79,13 @@ jobs:
           sudo apt-get install -y mingw-w64 mingw-w64-tools mingw-w64-i686-dev gcc make m4 pkg-config automake gettext
 
       - name: Build wget x86
+        id: get_version
         run: |
           i686-w64-mingw32-gcc --version
           ./build.sh x86
+          VERSION=$(grep -Po '(?<=wget-)\d+\.\d{2}\.\d+' build.sh | uniq)
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          echo "Extracted: $VERSION"
 
       - name: Attest x86 Binaries
         if: startsWith(github.ref, 'refs/tags/v')
@@ -139,7 +140,7 @@ jobs:
     needs: [build-x64, build-x86]
     runs-on: windows-latest
     env:
-      WGET_VERSION: ${{ needs.build-x64.outputs.wget_version }}
+      WGET_VERSION: ${{ needs.build-x86.outputs.WGET_VERSION }}
       PYTHONUTF8: 1
     steps:
       - uses: actions/checkout@v7
@@ -162,10 +163,10 @@ jobs:
 
   test-windows-arm64:
     name: Test Binaries on Windows (arm64)
-    needs: [build-arm64]
+    needs: [build-arm64, build-x86]
     runs-on: windows-11-arm
     env:
-      WGET_VERSION: ${{ needs.build-x64.outputs.wget_version }}
+      WGET_VERSION: ${{ needs.build-x86.outputs.WGET_VERSION }}
       PYTHONUTF8: 1
     steps:
       - uses: actions/checkout@v7
@@ -207,7 +208,7 @@ jobs:
         with:
           allowUpdates: true
           artifacts: |
-           ./downloads/**/*.exe
-           ./downloads/datafiles/datafiles.zip
+            ./downloads/**/*.exe
+            ./downloads/datafiles/datafiles.zip
           bodyFile: "RELEASE.md"
           token: ${{ secrets.GITHUB_TOKEN }}
