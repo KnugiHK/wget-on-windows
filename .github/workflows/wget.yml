@@ -47,6 +47,7 @@ jobs:
           zip -r ../../datafiles.zip etc share/locale LICENSE
 
       - name: Attest x64 Binaries
+        if: startsWith(github.ref, 'refs/tags/v')
         uses: actions/attest-build-provenance@v4
         with:
           subject-path: |
@@ -86,6 +87,7 @@ jobs:
           ./build.sh x86
 
       - name: Attest x86 Binaries
+        if: startsWith(github.ref, 'refs/tags/v')
         uses: actions/attest-build-provenance@v4
         with:
           subject-path: |
@@ -117,6 +119,7 @@ jobs:
           ./build.sh arm64
 
       - name: Attest arm64 Binaries
+        if: startsWith(github.ref, 'refs/tags/v')
         uses: actions/attest-build-provenance@v4
         with:
           subject-path: |
