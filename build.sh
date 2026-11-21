@@ -602,8 +602,8 @@ rm -rf "wget-${WGET_VER}"
 tar -xf "$DOWNLOAD_DIR/wget-${WGET_VER}.tar.gz"
 cd "wget-${WGET_VER}"
 if [ "$NO_TASKBAR_PROGRESS" -eq 0 ]; then
-  cp ../../wget-taskbar-progress.patch .
-  patch -p1 < wget-taskbar-progress.patch
+  cp ../../taskbar-progress.patch .
+  patch -p1 < taskbar-progress.patch
 fi
 if [ "$BUILD_VERSION" != "$WGET_VER" ]; then
   inject_build_version
@@ -650,8 +650,8 @@ rm -rf "wget-${WGET_VER}"
 tar -xf "$DOWNLOAD_DIR/wget-${WGET_VER}.tar.gz"
 cd "wget-${WGET_VER}"
 if [ "$NO_TASKBAR_PROGRESS" -eq 0 ]; then
-  cp ../../wget-taskbar-progress.patch .
-  patch -p1 < wget-taskbar-progress.patch
+  cp ../../taskbar-progress.patch .
+  patch -p1 < taskbar-progress.patch
 fi
 cp ../../windows-openssl.patch .
 patch src/openssl.c < windows-openssl.patch
